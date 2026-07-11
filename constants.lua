@@ -95,9 +95,9 @@ STEP_FRAC = 0.5
 EDGE_PAD = 1
 
 -- raw mouse deltas have no OS acceleration in relative
--- mode, so they are scaled to a comfortable feel
+-- mode, so they are scaled; tuned to the system mouse speed
 
-POINTER_SPEED = 2.5
+POINTER_SPEED = 1.25
 
 -- sticker crosshair arm length
 
@@ -176,7 +176,8 @@ SEEDS = {
 PRESETS = {
   {
     id = "sticker board",
-    tools = { STICKER }
+    tools = { STICKER },
+    undo = false
   },
   {
     id = "full interface",
@@ -184,6 +185,7 @@ PRESETS = {
       BRUSH,
       ERASER,
       STICKER
-    }
+    },
+    undo = true
   }
 }

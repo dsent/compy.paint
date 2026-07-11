@@ -6,6 +6,8 @@
 
 require("constants")
 require("objects")
+require("save")
+require("slots")
 require("stickers")
 
 -- the star sticker doubles as the sticker-tool icon
@@ -578,7 +580,8 @@ end
 
 SCREEN_DRAW = {
   menu = drawMenu,
-  engine = drawEngine
+  engine = drawEngine,
+  slots = drawSlots
 }
 
 function love.draw()
@@ -759,7 +762,11 @@ function doClear()
   replay()
 end
 
+-- undo is a per-preset capability; the sticker board omits it
 function doUndo()
+  if not preset.undo then 
+    return 
+  end
   undo()
   replay()
 end
@@ -879,7 +886,8 @@ end
 
 SCREEN_PRESS = {
   menu = menuPress,
-  engine = enginePress
+  engine = enginePress,
+  slots = slotsPress
 }
 
 function love.mousepressed()
@@ -968,6 +976,8 @@ function escapePressed()
   end
   if screen == "engine" then
     enterMenu()
+  elseif screen == "slots" then
+    slotsBack()
   else
     exitToConsole()
   end
@@ -988,7 +998,22 @@ function chordKey(k)
   end
 end
 
-CTRL_KEYS = { z = doUndo }
+-- Ctrl+S / Ctrl+O open the slot screen to save / load; the
+-- feature is teacher-facing (spec), so a keyboard entry fits.
+
+function openSaveScreen()
+  enterSlots("save")
+end
+
+function openLoadScreen()
+  enterSlots("load")
+end
+
+CTRL_KEYS = {
+  z = doUndo,
+  s = openSaveScreen,
+  o = openLoadScreen
+}
 
 function ctrlKey(k)
   local action = CTRL_KEYS[k]
