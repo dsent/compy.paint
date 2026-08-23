@@ -78,13 +78,18 @@ function slotFile(n)
   return "slot" .. n .. ".lua"
 end
 
--- An overwritten slot is copied here first, timestamped, so a
--- teacher can recover an accidental overwrite (spec). The .bak
+-- An overwritten slot is copied to the next free ordinal first, so
+-- a teacher can recover an accidental overwrite (spec). The .bak
 -- suffix keeps it out of the slot picker.
 
 function backupFile(n)
-  return "slot" .. n .. "." .. os.date("%Y%m%d-%H%M%S")
-    .. ".bak"
+  local ordinal = 1
+  local path
+  repeat
+    path = "slot" .. n .. "." .. ordinal .. ".bak"
+    ordinal = ordinal + 1
+  until not love.filesystem.getInfo(path)
+  return path
 end
 
 -- Save the picture into slot n. If the slot is taken, back up
