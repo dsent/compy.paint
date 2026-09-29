@@ -890,13 +890,21 @@ SCREEN_PRESS = {
   slots = slotsPress
 }
 
--- the button that acts as Alt+left
+-- the button that acts as Alt+left, and the one held now:
+-- a second button pressed during a stroke, a drag or an
+-- erase is ignored, and only its own release ends it
 ALT_BUTTON = 2
+down_button = nil
 
 function love.mousepressed(_, _, button)
+  if down_button then
+    return
+  end
   if button == 1 then
+    down_button = button
     SCREEN_PRESS[screen](mx, my, Key.alt())
   elseif button == ALT_BUTTON then
+    down_button = button
     SCREEN_PRESS[screen](mx, my, true)
   end
 end
@@ -915,10 +923,10 @@ function love.mousemoved(_, _, dx, dy)
 end
 
 function love.mousereleased(_, _, button)
-  local counts = button == 1 or button == ALT_BUTTON
-  if not counts then
+  if button ~= down_button then
     return
   end
+  down_button = nil
   if stroke then
     commitStroke()
   end
