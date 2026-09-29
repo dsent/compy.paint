@@ -893,18 +893,25 @@ SCREEN_PRESS = {
 -- the button that acts as Alt+left, and the one held now:
 -- a second button pressed during a stroke, a drag or an
 -- erase is ignored, and only its own release ends it. A
--- held button that is up by the next press lost its
--- release, and its press ends there.
+-- held button that is up by the next press, or pressed
+-- again, lost its release, and its press ends there.
 ALT_BUTTON = 2
 down_button = nil
 
 function love.mousepressed(_, _, button)
-  local lost = down_button and not love.mouse.isDown(down_button)
-  if lost then
-    endPress()
+  if down_button then
+    endLostPress(button)
   end
   if not down_button then
     startPress(button)
+  end
+end
+
+function endLostPress(button)
+  local again = button == down_button
+  local lost = again or not love.mouse.isDown(down_button)
+  if lost then
+    endPress()
   end
 end
 
