@@ -179,8 +179,8 @@ color. There is no secondary drawing color — the brush always
 paints the primary. The background lives outside the object
 list, so erasing reveals it and undo/clear do not touch it.
 
-A real right-button click reaches the program as a raw `Esc`
-key; `paint` binds neither, so both are silently dropped.
+A right click does what an `Alt`+click does. Other mouse
+buttons and a plain `Esc` do nothing.
 
 Keyboard conveniences:
 

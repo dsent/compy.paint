@@ -772,8 +772,8 @@ function doUndo()
 end
 
 -- input dispatch: all actions on raw mouse events (spec)
--- Alt+left picks the background; right button never arrives
--- (the platform delivers it as a raw Esc, which is unbound)
+-- the right button does what Alt+left does; other buttons
+-- are ignored
 
 -- click regions: each list is a sequence of test/action
 -- pairs, all built the same way through addRegion
@@ -890,8 +890,15 @@ SCREEN_PRESS = {
   slots = slotsPress
 }
 
-function love.mousepressed()
-  SCREEN_PRESS[screen](mx, my, Key.alt())
+-- the button that acts as Alt+left
+ALT_BUTTON = 2
+
+function love.mousepressed(_, _, button)
+  if button == 1 then
+    SCREEN_PRESS[screen](mx, my, Key.alt())
+  elseif button == ALT_BUTTON then
+    SCREEN_PRESS[screen](mx, my, true)
+  end
 end
 
 function love.mousemoved(_, _, dx, dy)
@@ -907,7 +914,11 @@ function love.mousemoved(_, _, dx, dy)
   end
 end
 
-function love.mousereleased()
+function love.mousereleased(_, _, button)
+  local counts = button == 1 or button == ALT_BUTTON
+  if not counts then
+    return
+  end
   if stroke then
     commitStroke()
   end
@@ -958,7 +969,7 @@ function setColorKey(k)
 end
 
 -- Shift+Esc steps back: engine -> preset menu -> console.
--- raw Esc (the platform's right-click) is dropped (spec)
+-- plain Esc does nothing (spec)
 
 function exitToConsole()
   gfx.clear()
