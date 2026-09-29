@@ -179,8 +179,10 @@ color. There is no secondary drawing color — the brush always
 paints the primary. The background lives outside the object
 list, so erasing reveals it and undo/clear do not touch it.
 
-A right click does what an `Alt`+click does. Other mouse
-buttons and a plain `Esc` do nothing.
+A right click on a swatch sets the background, as an
+`Alt`+click does; choosing the old color again gives back the
+same picture. Other mouse buttons and a plain `Esc` do
+nothing.
 
 Keyboard conveniences:
 
