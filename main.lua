@@ -1000,7 +1000,6 @@ end
 
 function exitToConsole()
   gfx.clear()
-  love.mouse.setRelativeMode(false)
   stop()
 end
 
