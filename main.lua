@@ -1005,10 +1005,6 @@ function exitToConsole()
 end
 
 function escapePressed()
-  if Key.ctrl() then
-    love.mouse.setRelativeMode(false)
-    return 
-  end
   if not Key.shift() then
     return 
   end
