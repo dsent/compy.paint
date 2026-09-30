@@ -74,7 +74,7 @@ stroke = {
 
 This split between the model and the rendering is the
 load-bearing idea of the program: because the list *is* the
-drawing, we can erase one object, undo, or (someday) save —
+drawing, we can erase one object or undo —
 none of which a flat bitmap allows.
 
 ### Drawing

@@ -1031,21 +1031,13 @@ function chordKey(k)
   end
 end
 
--- Ctrl+S / Ctrl+O open the slot screen to save / load; the
--- feature is teacher-facing (spec), so a keyboard entry fits.
-
-function openSaveScreen()
-  enterSlots("save")
-end
-
-function openLoadScreen()
-  enterSlots("load")
-end
+-- Ctrl+S / Ctrl+O would open the slot screen (enterSlots
+-- "save" / "load"), but that screen is unfinished and
+-- crashes (compy-paint-slots-screen-crashes), so neither
+-- key is bound; slots.lua and save.lua stay in the tree.
 
 CTRL_KEYS = {
-  z = doUndo,
-  s = openSaveScreen,
-  o = openLoadScreen
+  z = doUndo
 }
 
 function ctrlKey(k)
