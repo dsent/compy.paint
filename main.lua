@@ -1001,9 +1001,10 @@ function setColorKey(k)
   end
 end
 
--- Esc alone steps back: engine -> preset menu, and the slots
--- screen back. The preset menu is the top level, where Esc
--- does nothing. A chord with Esc is no command of the game.
+-- Esc alone steps back one level: engine -> preset menu, and
+-- the slots screen back. The preset menu is the top level,
+-- where Esc leaves paint for the console, as Ctrl+Q does from
+-- anywhere. A chord with Esc is no command of the game.
 
 function escapePressed()
   local chord = Key.shift() or Key.ctrl() or Key.alt()
@@ -1014,6 +1015,8 @@ function escapePressed()
     enterMenu()
   elseif screen == "slots" then
     slotsBack()
+  else
+    stop()
   end
 end
 
@@ -1059,7 +1062,8 @@ function engineKey(k)
 end
 
 -- Esc acts on its press alone: a held Esc, one left from an
--- ignored chord included, repeats without acting.
+-- ignored chord included, repeats without acting, so a held
+-- Esc that brought the engine back to the menu stays there.
 
 function love.keypressed(k, _, isrepeat)
   if k == "escape" then
