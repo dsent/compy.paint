@@ -13,8 +13,8 @@ built over the same engine:
 * **full interface** — brush, eraser, the 16-color palette,
   line thickness, and the sticker tray.
 
-`Shift+Esc` steps back: from the engine to the preset menu, and
-from the menu out to the console.
+`Esc` steps back from the engine to the preset menu. `Ctrl+Q`
+leaves paint for the console.
 
 ### Interface design
 
@@ -181,8 +181,7 @@ list, so erasing reveals it and undo/clear do not touch it.
 
 A right click on a swatch sets the background, as an
 `Alt`+click does; choosing the old color again gives back the
-same picture. Other mouse buttons and a plain `Esc` do
-nothing.
+same picture. Other mouse buttons do nothing.
 
 Keyboard conveniences:
 
@@ -190,7 +189,7 @@ Keyboard conveniences:
 * `[` / `]` — thinner / thicker line
 * `1`–`8` — base colors; `Shift+1`–`8` — brighter variants
 * `Ctrl+Z` — undo (one step)
-* `Shift+Esc` — back to the preset menu / exit
+* `Esc` — back to the preset menu
 * `Ctrl+Alt+Down` / `Ctrl+Alt+Up` — teacher chords for the
   seed-sticker notch: down pre-places a tree, a house, and a
   sun so a blank page is less intimidating; up returns to

@@ -995,24 +995,19 @@ function setColorKey(k)
   end
 end
 
--- Shift+Esc steps back: engine -> preset menu -> console.
--- plain Esc does nothing (spec)
-
-function exitToConsole()
-  gfx.clear()
-  stop()
-end
+-- Esc alone steps back: engine -> preset menu, and the slots
+-- screen back. The preset menu is the top level, where Esc
+-- does nothing. A chord with Esc is no command of the game.
 
 function escapePressed()
-  if not Key.shift() then
+  local chord = Key.shift() or Key.ctrl() or Key.alt()
+  if chord then
     return 
   end
   if screen == "engine" then
     enterMenu()
   elseif screen == "slots" then
     slotsBack()
-  else
-    exitToConsole()
   end
 end
 
@@ -1057,9 +1052,14 @@ function engineKey(k)
   setColorKey(k)
 end
 
-function love.keypressed(k)
+-- Esc acts on its press alone: a held Esc, one left from an
+-- ignored chord included, repeats without acting.
+
+function love.keypressed(k, _, isrepeat)
   if k == "escape" then
-    escapePressed()
+    if not isrepeat then
+      escapePressed()
+    end
     return 
   end
   if screen == "engine" then
