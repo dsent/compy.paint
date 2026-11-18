@@ -13,8 +13,8 @@ built over the same engine:
 * **full interface** — brush, eraser, the 16-color palette,
   line thickness, and the sticker tray.
 
-`Shift+Esc` steps back: from the engine to the preset menu, and
-from the menu out to the console.
+`Esc` steps back from the engine to the preset menu. `Ctrl+Q`
+leaves paint for the console.
 
 ### Interface design
 
@@ -79,24 +79,26 @@ none of which a flat bitmap allows.
 
 ### Drawing
 
-Compy runs project code — including every event handler —
-inside `use_canvas`, targeting a persistent virtual canvas that
-keeps its contents between frames. Paint leans on that
-("pen-and-paper" drawing): a brush stroke is stamped onto the
-canvas once, at the moment the mouse moves, and stays there.
-Nothing is redrawn per frame.
-
-On entering a preset — inside a mouse handler, where the
-live canvas is the active target — we grab its handle:
+The picture is a canvas of paint's own, made once when paint
+starts:
 
 ```lua
-PICTURE = gfx.getCanvas()
+PICTURE = gfx.newCanvas()
 ```
 
-and keep a deliberately tiny `love.draw`: composite the
-picture, draw the chrome over it, then the live pointer
-overlay — a thin circle showing the current brush size. Its
-cost does not depend on how much the child has drawn.
+A canvas keeps its contents between frames, and paint leans on
+that ("pen-and-paper" drawing): the mouse and key handlers draw
+into the picture, so a brush stroke is stamped onto it once, at
+the press and as the mouse moves, and stays there. No stroke is
+redrawn per frame.
+
+`love.draw` stays deliberately tiny: the background, the
+picture over it, the chrome over that, then the live pointer
+overlay — for the brush, a thin circle showing its size. A
+canvas holds premultiplied color, so the picture is drawn with
+the premultiplied blend, which keeps its soft edges their
+color. The cost does not depend on how much the child has
+drawn.
 
 A stroke is a chain of filled circles. Mouse events arrive
 sparsely when the hand moves fast, so each new point is
@@ -112,11 +114,12 @@ press (or drag) the engine finds the topmost object under the
 cursor — a cheap bounding-box test first, then a fine test:
 point-to-polyline distance for strokes, the box itself for
 stickers — removes it from the list, and **replays** the
-remaining objects onto the canvas:
+remaining objects onto the picture, cleared to transparent so
+the background shows under it:
 
 ```lua
 function replay()
-  gfx.clear()
+  gfx.clear(0, 0, 0, 0)
   for i = 1, #objects do
     drawObject(objects[i])
   end
@@ -181,8 +184,7 @@ list, so erasing reveals it and undo/clear do not touch it.
 
 A right click on a swatch sets the background, as an
 `Alt`+click does; choosing the old color again gives back the
-same picture. Other mouse buttons and a plain `Esc` do
-nothing.
+same picture. Other mouse buttons do nothing.
 
 Keyboard conveniences:
 
@@ -190,7 +192,7 @@ Keyboard conveniences:
 * `[` / `]` — thinner / thicker line
 * `1`–`8` — base colors; `Shift+1`–`8` — brighter variants
 * `Ctrl+Z` — undo (one step)
-* `Shift+Esc` — back to the preset menu / exit
+* `Esc` — back to the preset menu
 * `Ctrl+Alt+Down` / `Ctrl+Alt+Up` — teacher chords for the
   seed-sticker notch: down pre-places a tree, a house, and a
   sun so a blank page is less intimidating; up returns to

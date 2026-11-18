@@ -14,15 +14,11 @@ require("stickers")
 
 STAR_ID = STK_STAR
 
--- pen-and-paper (spec #18): all event handlers run inside
--- the framework's use_canvas, so the picture lives on the
--- persistent virtual canvas. The handle is captured inside
--- a handler (enterPreset), where the platform guarantees
--- the live canvas is the active target. This capture and
--- the blit in drawEngine are the only platform-behavior
--- dependencies
+-- pen-and-paper (spec #18): the picture is a canvas of its
+-- own, which keeps its pixels between frames. The mouse and
+-- key handlers draw into it; drawEngine shows it each frame.
 
-PICTURE = nil
+PICTURE = gfx.newCanvas()
 
 -- relative mode: the system pointer is off, the position
 -- lives in mx, my and is clamped off the screen edges; the
@@ -520,12 +516,17 @@ end
 -- draw the chrome over any stamp bleed, then the live
 -- pointer overlay. gfx.draw tints by the current color,
 -- so the blit needs the identity tint (1, 1, 1) -- black
--- from drawBackground would render the picture invisible
+-- from drawBackground would render the picture invisible.
+-- A canvas holds premultiplied color, so the picture is
+-- drawn with the premultiplied blend, or its soft edges
+-- come out dark; everything after it uses the default.
 
 function drawEngine()
   drawBackground()
   gfx.setColor(1, 1, 1)
+  gfx.setBlendMode("alpha", "premultiplied")
   gfx.draw(PICTURE)
+  gfx.setBlendMode("alpha")
   drawColumn()
   if hasStrip() then
     drawTools()
@@ -701,7 +702,7 @@ end
 -- when the list changes (erase/undo), never per frame (spec)
 
 function replay()
-  gfx.clear()
+  gfx.clear(0, 0, 0, 0)
   for i = 1, #objects do
     drawObject(objects[i])
   end
@@ -847,7 +848,6 @@ function setTrayArea()
 end
 
 function enterPreset(i)
-  PICTURE = gfx.getCanvas()
   bg = Color.black
   preset = PRESETS[i]
   tool = preset.tools[1]
@@ -899,12 +899,14 @@ ALT_BUTTON = 2
 down_button = nil
 
 function love.mousepressed(_, _, button)
+  gfx.setCanvas(PICTURE)
   if down_button then
     endLostPress(button)
   end
   if not down_button then
     startPress(button)
   end
+  gfx.setCanvas()
 end
 
 function endLostPress(button)
@@ -931,17 +933,21 @@ function love.mousemoved(_, _, dx, dy)
   if not inCanvasRange(mx, my) then
     return 
   end
+  gfx.setCanvas(PICTURE)
   if stroke then
     extendStroke(mx, my)
   elseif erasing then
     eraseAt(mx, my)
   end
+  gfx.setCanvas()
 end
 
 function love.mousereleased(_, _, button)
+  gfx.setCanvas(PICTURE)
   if button == down_button then
     endPress()
   end
+  gfx.setCanvas()
 end
 
 function endPress()
@@ -995,24 +1001,19 @@ function setColorKey(k)
   end
 end
 
--- Shift+Esc steps back: engine -> preset menu -> console.
--- plain Esc does nothing (spec)
-
-function exitToConsole()
-  gfx.clear()
-  stop()
-end
+-- Esc alone steps back: engine -> preset menu, and the slots
+-- screen back. The preset menu is the top level, where Esc
+-- does nothing. A chord with Esc is no command of the game.
 
 function escapePressed()
-  if not Key.shift() then
+  local chord = Key.shift() or Key.ctrl() or Key.alt()
+  if chord then
     return 
   end
   if screen == "engine" then
     enterMenu()
   elseif screen == "slots" then
     slotsBack()
-  else
-    exitToConsole()
   end
 end
 
@@ -1057,12 +1058,19 @@ function engineKey(k)
   setColorKey(k)
 end
 
-function love.keypressed(k)
+-- Esc acts on its press alone: a held Esc, one left from an
+-- ignored chord included, repeats without acting.
+
+function love.keypressed(k, _, isrepeat)
   if k == "escape" then
-    escapePressed()
+    if not isrepeat then
+      escapePressed()
+    end
     return 
   end
   if screen == "engine" then
+    gfx.setCanvas(PICTURE)
     engineKey(k)
+    gfx.setCanvas()
   end
 end
